@@ -1,1 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping List App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #4CAF50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .item-button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .item-button:hover {
+            background-color: #1976D2;
+        }
+        #clearList {
+            background-color: #FF0000;  /* Changed to red */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 20px;
+        }
+        #clearList:hover {
+            background-color: #D32F2F;  /* Darker red on hover */
+        }
+        #shoppingList {
+            width: 100%;
+            height: 200px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="item-grid">
+            <button class="item-button" onclick="addItem('Milk')">🥛 Milk</button>
+            <button class="item-button" onclick="addItem('Bread')">🍞 Bread</button>
+            <button class="item-button" onclick="addItem('Eggs')">🥚 Eggs</button>
+            <button class="item-button" onclick="addItem('Butter')">🧈 Butter</button>
+            <button class="item-button" onclick="addItem('Cheese')">🧀 Cheese</button>
+            <button class="item-button" onclick="addItem('Chicken')">🍗 Chicken</button>
+            <button class="item-button" onclick="addItem('Apples')">🍎 Apples</button>
+            <button class="item-button" onclick="addItem('Bananas')">🍌 Bananas</button>
+            <button class="item-button" onclick="addItem('Potatoes')">🥔 Potatoes</button>
+            <button class="item-button" onclick="addItem('Onions')">🧅 Onions</button>
+            <button class="item-button" onclick="addItem('Rice')">🍚 Rice</button>
+            <button class="item-button" onclick="addItem('Pasta')">🍝 Pasta</button>
+            <button class="item-button" onclick="addItem('Cereal')">🥣 Cereal</button>
+            <button class="item-button" onclick="addItem('Coffee')">☕ Coffee</button>
+            <button class="item-button" onclick="addItem('Tea')">🍵 Tea</button>
+            <button class="item-button" onclick="addItem('Sugar')">🧂 Sugar</button>
+            <button class="item-button" onclick="addItem('Flour')">🌾 Flour</button>
+            <button class="item-button" onclick="addItem('Yogurt')">🥛 Yogurt</button>
+            <button class="item-button" onclick="addItem('Tomatoes')">🍅 Tomatoes</button>
+            <button class="item-button" onclick="addItem('Carrots')">🥕 Carrots</button>
+        </div>
+        <button id="clearList" onclick="clearList()">Clear My List 🗑️</button>
+        <div id="shoppingList"></div>
+    </div>
 
+    <script>
+        let shoppingList = [];
+
+        function addItem(item) {
+            if (!shoppingList.includes(item)) {
+                shoppingList.push(item);
+                updateListDisplay();
+            }
+        }
+
+        function clearList() {
+            shoppingList = [];
+            updateListDisplay();
+        }
+
+        function updateListDisplay() {
+            const listElement = document.getElementById('shoppingList');
+            if (shoppingList.length === 0) {
+                listElement.innerHTML = "Your shopping list is empty.";
+            } else {
+                listElement.innerHTML = shoppingList.map(item => `• ${item}`).join('<br>');
+            }
+        }
+
+        // Initialize the display
+        updateListDisplay();
+    </script>
+</body>
+</html>
