@@ -18,10 +18,10 @@
         #fireButton {
             position: absolute;
             top: 50%;
-            right: 20px; /* Move to middle right */
-            transform: translateY(-50%);
+            right: 20px;
             width: 80px;
             height: 80px;
+            margin-top: -40px; /* Centers the button vertically */
             border-radius: 50%;
             background-color: rgba(255, 255, 255, 0.3);
             border: none;
@@ -32,7 +32,7 @@
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
-    <button id="fireButton">🔥</button> <!-- Shooting button -->
+    <button id="fireButton">🔥</button>
 
     <script>
         // Game variables
@@ -127,9 +127,9 @@
         }
 
         function drawEnemyBullets() {
-            ctx.font = `${canvas.width * 0.03}px Arial`; // Smaller size for enemy bullets
+            ctx.font = `${canvas.width * 0.03}px Arial`; // Smaller font size for bullet
             enemyBullets.forEach(bullet => {
-                ctx.fillText('⚫', bullet.x, bullet.y); // Replaced with a smaller black circle emoji
+                ctx.fillText('•', bullet.x, bullet.y); // Replaced '🟡' with smaller '•'
             });
         }
 
@@ -259,3 +259,15 @@
             } else {
                 ctx.fillStyle = 'white';
                 ctx.font = '40px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Game Over!', WIDTH / 2, HEIGHT / 2 - 40);
+                ctx.font = '20px Arial';
+                ctx.fillText(`Final Score: ${score}`, WIDTH / 2, HEIGHT / 2);
+                ctx.fillText('Refresh to restart', WIDTH / 2, HEIGHT / 2 + 40);
+            }
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
