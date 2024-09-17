@@ -46,8 +46,8 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        const WIDTH = canvas.width;
-        const HEIGHT = canvas.height;
+        let WIDTH = canvas.width;
+        let HEIGHT = canvas.height;
 
         let player = {
             x: WIDTH / 2,
@@ -69,6 +69,9 @@
         let startTime = Date.now();
         let lastShotTime = 0;
         let shootInterval = 500; // milliseconds
+
+        // List of fruit emojis for power-ups
+        const fruitEmojis = ['🍏','🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🥒','🥑','🍅','🥝','🥥','🍍','🥭','🍑','🍒','🍈'];
 
         // Touch controls
         let isTouching = false;
@@ -125,14 +128,14 @@
         function drawEnemyBullets() {
             ctx.font = `${canvas.width * 0.05}px Arial`;
             enemyBullets.forEach(bullet => {
-                ctx.fillText('🔻', bullet.x, bullet.y);
+                ctx.fillText('🟡', bullet.x, bullet.y); // Changed from '🔻' to '🟡'
             });
         }
 
         function drawPowerups() {
             ctx.font = `${canvas.width * 0.07}px Arial`;
             powerups.forEach(powerup => {
-                ctx.fillText('⭐', powerup.x, powerup.y);
+                ctx.fillText(powerup.emoji, powerup.x, powerup.y);
             });
         }
 
@@ -194,7 +197,8 @@
                 powerups.push({
                     x: Math.random() * (WIDTH - 40) + 20,
                     y: -20,
-                    speed: 2
+                    speed: 0.5, // Slower speed for power-ups
+                    emoji: fruitEmojis[Math.floor(Math.random() * fruitEmojis.length)]
                 });
             }
 
