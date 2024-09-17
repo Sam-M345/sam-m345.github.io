@@ -2,32 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Falcon Strike</title>
+    <title>Falcon Strike Enhanced</title>
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
             background-color: #000;
             font-family: Arial, sans-serif;
+            overflow: hidden;
+            color: #FFF;
         }
         #gameCanvas {
-            border: 2px solid #FFF;
+            display: block;
+            margin: 0 auto;
+            background-color: #000;
         }
         #gameContainer {
             text-align: center;
         }
         h1, p {
             color: #FFF;
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
     <div id="gameContainer">
-        <h1>Falcon Strike</h1>
+        <h1>🚀 Falcon Strike</h1>
         <canvas id="gameCanvas" width="528" height="768"></canvas>
         <p>Use arrow keys to move and spacebar to shoot!</p>
     </div>
@@ -41,20 +41,24 @@
 
         let player = {
             x: WIDTH / 2,
-            y: HEIGHT - 50,
+            y: HEIGHT - 80,
             width: 40,
             height: 40,
-            speed: 5
+            speed: 6,
+            emoji: '🚀'
         };
 
         let bullets = [];
         let enemies = [];
+        let enemyBullets = [];
         let powerups = [];
 
         let score = 0;
         let lives = 5;
         let gameOver = false;
         let startTime = Date.now();
+        let lastShotTime = 0;
+        let shootInterval = 300; // milliseconds
 
         // Keyboard controls
         let keys = {};
@@ -62,34 +66,52 @@
         document.addEventListener('keyup', (e) => keys[e.code] = false);
 
         function drawPlayer() {
-            ctx.fillStyle = 'blue';
-            ctx.fillRect(player.x - player.width/2, player.y - player.height/2, player.width, player.height);
+            ctx.font = '40px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(player.emoji, player.x, player.y);
         }
 
         function drawBullets() {
-            ctx.fillStyle = 'yellow';
+            ctx.font = '24px Arial';
             bullets.forEach(bullet => {
-                ctx.fillRect(bullet.x - 2, bullet.y - 8, 4, 16);
+                ctx.fillText('💥', bullet.x, bullet.y);
             });
         }
 
         function drawEnemies() {
-            ctx.fillStyle = 'red';
+            ctx.font = '36px Arial';
             enemies.forEach(enemy => {
-                ctx.fillRect(enemy.x - enemy.width/2, enemy.y - enemy.height/2, enemy.width, enemy.height);
+                ctx.fillText(enemy.emoji, enemy.x, enemy.y);
+            });
+        }
+
+        function drawEnemyBullets() {
+            ctx.font = '24px Arial';
+            enemyBullets.forEach(bullet => {
+                ctx.fillText('🔻', bullet.x, bullet.y);
             });
         }
 
         function drawPowerups() {
-            ctx.fillStyle = 'green';
+            ctx.font = '30px Arial';
             powerups.forEach(powerup => {
-                ctx.fillRect(powerup.x - 10, powerup.y - 10, 20, 20);
+                ctx.fillText('⭐', powerup.x, powerup.y);
             });
+        }
+
+        function drawBackground() {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+            ctx.fillStyle = 'white';
+            for (let i = 0; i < 100; i++) {
+                ctx.fillRect(Math.random() * WIDTH, Math.random() * HEIGHT, 1, 1);
+            }
         }
 
         function drawHUD() {
             ctx.fillStyle = 'white';
             ctx.font = '20px Arial';
+            ctx.textAlign = 'left';
             ctx.fillText(`Score: ${score}`, 10, 30);
             ctx.fillText(`Lives: ${lives}`, 10, 60);
             let elapsedTime = (Date.now() - startTime) / 1000;
@@ -98,100 +120,119 @@
 
         function updateGame() {
             // Player movement
-            if (keys['ArrowLeft'] && player.x > player.width/2) player.x -= player.speed;
-            if (keys['ArrowRight'] && player.x < WIDTH - player.width/2) player.x += player.speed;
-            if (keys['ArrowUp'] && player.y > player.height/2) player.y -= player.speed;
-            if (keys['ArrowDown'] && player.y < HEIGHT - player.height/2) player.y += player.speed;
+            if (keys['ArrowLeft'] && player.x > 20) player.x -= player.speed;
+            if (keys['ArrowRight'] && player.x < WIDTH - 20) player.x += player.speed;
+            if (keys['ArrowUp'] && player.y > 40) player.y -= player.speed;
+            if (keys['ArrowDown'] && player.y < HEIGHT - 20) player.y += player.speed;
 
             // Shooting
-            if (keys['Space'] && bullets.length < 5) {
-                bullets.push({x: player.x, y: player.y - player.height/2});
+            if (keys['Space'] && Date.now() - lastShotTime > shootInterval) {
+                bullets.push({ x: player.x, y: player.y - 30, speed: 10 });
+                lastShotTime = Date.now();
             }
 
             // Update bullets
             bullets = bullets.filter(bullet => {
-                bullet.y -= 10;
+                bullet.y -= bullet.speed;
                 return bullet.y > 0;
             });
 
             // Spawn enemies
-            if (Math.random() < 0.02) {
+            if (Math.random() < 0.03) {
                 enemies.push({
-                    x: Math.random() * WIDTH,
-                    y: -20,
-                    width: 30,
-                    height: 30,
-                    speed: Math.random() * 2 + 1
+                    x: Math.random() * (WIDTH - 40) + 20,
+                    y: -40,
+                    speed: Math.random() * 2 + 1,
+                    emoji: ['👾', '🛸', '🚁'][Math.floor(Math.random() * 3)],
+                    shootChance: 0.01
                 });
             }
 
             // Update enemies
-            enemies = enemies.filter(enemy => {
+            enemies.forEach(enemy => {
                 enemy.y += enemy.speed;
-                return enemy.y < HEIGHT;
+                // Enemy shooting
+                if (Math.random() < enemy.shootChance) {
+                    enemyBullets.push({ x: enemy.x, y: enemy.y + 20, speed: 5 });
+                }
             });
+            enemies = enemies.filter(enemy => enemy.y < HEIGHT + 40);
+
+            // Update enemy bullets
+            enemyBullets.forEach(bullet => {
+                bullet.y += bullet.speed;
+            });
+            enemyBullets = enemyBullets.filter(bullet => bullet.y < HEIGHT + 20);
 
             // Spawn powerups
-            if (Math.random() < 0.001) {
+            if (Math.random() < 0.002) {
                 powerups.push({
-                    x: Math.random() * WIDTH,
+                    x: Math.random() * (WIDTH - 40) + 20,
                     y: -20,
-                    speed: 1
+                    speed: 2
                 });
             }
 
             // Update powerups
-            powerups = powerups.filter(powerup => {
+            powerups.forEach(powerup => {
                 powerup.y += powerup.speed;
-                return powerup.y < HEIGHT;
             });
+            powerups = powerups.filter(powerup => powerup.y < HEIGHT + 20);
 
             // Collision detection
             enemies.forEach((enemy, enemyIndex) => {
                 bullets.forEach((bullet, bulletIndex) => {
-                    if (bullet.x > enemy.x - enemy.width/2 && bullet.x < enemy.x + enemy.width/2 &&
-                        bullet.y > enemy.y - enemy.height/2 && bullet.y < enemy.y + enemy.height/2) {
+                    if (Math.hypot(bullet.x - enemy.x, bullet.y - enemy.y) < 30) {
                         enemies.splice(enemyIndex, 1);
                         bullets.splice(bulletIndex, 1);
                         score += 10;
                     }
                 });
 
-                if (player.x > enemy.x - enemy.width/2 && player.x < enemy.x + enemy.width/2 &&
-                    player.y > enemy.y - enemy.height/2 && player.y < enemy.y + enemy.height/2) {
+                if (Math.hypot(player.x - enemy.x, player.y - enemy.y) < 30) {
                     enemies.splice(enemyIndex, 1);
                     lives--;
                     if (lives <= 0) gameOver = true;
                 }
             });
 
+            enemyBullets.forEach((bullet, bulletIndex) => {
+                if (Math.hypot(player.x - bullet.x, player.y - bullet.y) < 20) {
+                    enemyBullets.splice(bulletIndex, 1);
+                    lives--;
+                    if (lives <= 0) gameOver = true;
+                }
+            });
+
             powerups.forEach((powerup, index) => {
-                if (player.x > powerup.x - 10 && player.x < powerup.x + 10 &&
-                    player.y > powerup.y - 10 && player.y < powerup.y + 10) {
+                if (Math.hypot(player.x - powerup.x, player.y - powerup.y) < 30) {
                     powerups.splice(index, 1);
                     score += 50;
+                    lives = Math.min(lives + 1, 5);
                 }
             });
         }
 
         function gameLoop() {
-            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+            drawBackground();
 
             if (!gameOver) {
                 updateGame();
                 drawPlayer();
                 drawBullets();
                 drawEnemies();
+                drawEnemyBullets();
                 drawPowerups();
                 drawHUD();
                 requestAnimationFrame(gameLoop);
             } else {
                 ctx.fillStyle = 'white';
                 ctx.font = '40px Arial';
-                ctx.fillText('Game Over!', WIDTH/2 - 100, HEIGHT/2);
+                ctx.textAlign = 'center';
+                ctx.fillText('Game Over!', WIDTH / 2, HEIGHT / 2 - 40);
                 ctx.font = '20px Arial';
-                ctx.fillText(`Final Score: ${score}`, WIDTH/2 - 60, HEIGHT/2 + 40);
-                ctx.fillText('Press R to restart', WIDTH/2 - 70, HEIGHT/2 + 80);
+                ctx.fillText(`Final Score: ${score}`, WIDTH / 2, HEIGHT / 2);
+                ctx.fillText('Press R to restart', WIDTH / 2, HEIGHT / 2 + 40);
             }
         }
 
@@ -199,9 +240,10 @@
             if (e.code === 'KeyR' && gameOver) {
                 // Reset game state
                 player.x = WIDTH / 2;
-                player.y = HEIGHT - 50;
+                player.y = HEIGHT - 80;
                 bullets = [];
                 enemies = [];
+                enemyBullets = [];
                 powerups = [];
                 score = 0;
                 lives = 5;
